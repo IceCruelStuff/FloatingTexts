@@ -19,11 +19,11 @@ class SetNameTagVisibleTask extends PluginTask {
      */
     public function onRun($tick) {
         foreach ($this->getOwner()->getServer()->getLevels() as $level) {
-            foreach ($level->getEntities() as $et) {
-                if (isset($et->namedtag->isUsedToFloat)) {
-                    $et->setNameTagAlwaysVisible(true);
-                    $et->setNameTagVisible(true);
-                    $et->setImmobile(true);
+            foreach ($level->getEntities() as $entity) {
+                if (isset($entity->namedtag->isUsedToFloat)) {
+                    $entity->setNameTagAlwaysVisible(true);
+                    $entity->setNameTagVisible(true);
+                    $entity->setImmobile(true);
                 }
             }
         }
