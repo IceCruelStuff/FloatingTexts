@@ -7,6 +7,7 @@ namespace Ad5001\FloatingTexts;
 use pocketmine\Server;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\entity\EffectInstance;
 use pocketmine\entity\Effect;
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
@@ -16,8 +17,6 @@ use pocketmine\event\entity\EntityDamageByEntityEvent
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 use pocketmine\nbt\tag\StringTag;
-
-
 
 class Main extends PluginBase implements Listener {
 
@@ -60,11 +59,8 @@ class Main extends PluginBase implements Listener {
 	 */
 	public function onEntityDamage(EntityDamageEvent $event) {
 		if ($event instanceof EntityDamageByEntityEvent) {
-			if (
-				$event->getDamager() instanceof Player &&
-				isset($this->sessions[$event->getDamager()->getName()])
-			) {
-				$event->getEntity()->addEffect(Effect::getEffectByName("invisibility")->setAmbient(true)->setVisible(false));
+			if ($event->getDamager() instanceof Player && isset($this->sessions[$event->getDamager()->getName()])) {
+				$event->getEntity()->addEffect(new EffectInstance(Effect::getEffectByName("invisibility"))->setAmbient(true)->setVisible(false));
 				$event->getEntity()->setNameTag($this->sessions[$event->getDamager()->getName()]);
 				$event->getEntity()->setNameTagAlwaysVisible(true);
 				$event->getEntity()->setNameTagVisible(true);
@@ -74,7 +70,9 @@ class Main extends PluginBase implements Listener {
 				$event->setCancelled();
 				unset($this->sessions[$event->getDamager()->getName()]);
 			} elseif (isset($event->getEntity()->namedtag->isUsedToFloat)) {
-				if(!($event->getDamager() instanceof Player && $event->getDamager()->isOp())) $event->setCancelled();
+				if (!($event->getDamager() instanceof Player && $event->getDamager()->isOp())) {
+					$event->setCancelled();
+				}
 			}
 		} elseif (isset($event->getEntity()->namedtag->isUsedToFloat)) {
 			$event->setCancelled();
@@ -87,12 +85,12 @@ class Main extends PluginBase implements Listener {
 	 * @param $event LevelLoadEvent
 	 */
 	public function onLevelLoad(LevelLoadEvent $event) {
-		foreach ($event->getLevel()->getEntities() as $et) {
-			if (isset($et->namedtag->isUsedToFloat)) {
-				$et->addEffect(Effect::getEffectByName("invisibility")->setDuration(99999)->setVisible(false));
-				$et->setNameTagAlwaysVisible(true);
-				$et->setNameTagVisible(true);
-				$et->setImmobile(true);
+		foreach ($event->getLevel()->getEntities() as $entity) {
+			if (isset($entity->namedtag->isUsedToFloat)) {
+				$entity->addEffect(new EffectInstance(Effect::getEffectByName("invisibility"), 99999, 0, false));
+				$entity->setNameTagAlwaysVisible(true);
+				$entity->setNameTagVisible(true);
+				$entity->setImmobile(true);
 			}
 		}
 	}
